@@ -4,17 +4,34 @@
 const expect = require('expect');
 const deepFreeze = require('deep-freeze');
 
+const todo = (state, action) =>{
+    switch(action.type){
+        case 'ADD_TODO':
+         return {
+            id: action.id,
+                text: action.text,
+            completed:false
+        };
+        case 'TOGGLE_TODO':
+            if(state.id !== action.id)
+                return state;
+            return {
+                ...state, completed: !state.completed
+            };
+        default:
+            return state;
+    }
+};
+
 const todos = (state = [], action) => {
     switch(action.type){
         case 'ADD_TODO':
             return [
                 ...state,
-                {
-                    id: action.id,
-                    text: action.text,
-                    completed:false
-                }
+                todo(undefined, action)
             ];
+        case 'TOGGLE_TODO':
+            return state.map(item=> todo(item, action));
         default:
             return state;
     }
@@ -43,5 +60,45 @@ const testAddTodo = () => {
     ).toEqual(stateAfter);
 };
 
+const testToggleTodo = () => {
+    const stateBefore = [
+        {
+            id: 0,
+            text: 'some text',
+            completed: false
+        },
+        {
+            id: 1,
+            text: 'some text',
+            completed: false
+        }
+    ];
+    const action = {
+        type: 'TOGGLE_TODO',
+        id: 1,
+        text: 'some text'
+    };
+
+    const stateAfter = [
+        {
+            id: 0,
+            text: 'some text',
+            completed: false
+        },
+        {
+            id: 1,
+            text: 'some text',
+            completed: true
+        }
+    ];
+    deepFreeze(stateBefore);
+    deepFreeze(action);
+
+    expect(
+        todos(stateBefore, action)
+    ).toEqual(stateAfter);
+};
+
 testAddTodo();
+testToggleTodo();
 console.log('All test passed!');
