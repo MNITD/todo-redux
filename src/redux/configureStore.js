@@ -3,19 +3,20 @@
  */
 
 import ReactDOM from 'react-dom';
+import React from 'react';
 
-const counter = (state = 0, action)=>{
-  switch (action.type){
-      case 'INCREMENT':
-          return state + 1;
-      case 'DECREMENT':
-          return state - 1;
-      default:
-          return state;
-  }
+const counter = (state = 0, action) => {
+    switch (action.type) {
+        case 'INCREMENT':
+            return state + 1;
+        case 'DECREMENT':
+            return state - 1;
+        default:
+            return state;
+    }
 };
 
-const createStore = (reducer) =>{
+const createStore = (reducer) => {
     let state;
     let listeners = [];
 
@@ -28,7 +29,7 @@ const createStore = (reducer) =>{
 
     const subscribe = (listener) => {
         listeners.push(listener);
-        return () =>{
+        return () => {
             listeners = listeners.filter(l => l !== listener)
         }
     };
@@ -40,18 +41,24 @@ const createStore = (reducer) =>{
 };
 
 // import {createStore} from 'redux';
+const Counter = ({value, onIncrement, onDecrement}) => (
+    <div>
+        <h1>{value}</h1>
+        <button onClick={onIncrement}>+</button>
+        <button onClick={onDecrement}>-</button>
+    </div>);
+
 const store = createStore(counter);
 
-const render = () =>{
-    document.body.innerHTML = store.getState();
+const render = () => {
+    ReactDOM.render(<Counter value={store.getState()}
+                             onIncrement={()=>{store.dispatch({type:'INCREMENT'})}}
+                             onDecrement={()=>{store.dispatch({type:'DECREMENT'})}}/>,
+        document.getElementById('root'));
 };
 
 store.subscribe(render);
 render();
 
-document.addEventListener('click', ()=>{
-    console.log('click');
-    store.dispatch({type: 'INCREMENT'});
-});
 
 export default store;
