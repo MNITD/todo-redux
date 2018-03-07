@@ -37,6 +37,24 @@ const todos = (state = [], action) => {
     }
 };
 
+const visibilityFilter = (
+    state = 'SHOW_ALL',
+    action) => {
+    switch(action.type){
+        case 'SET_VISIBILITY_FILTER':
+            return  action.filter;
+        default:
+            return state;
+    }
+};
+
+const todoApp = (state ={}, action) => {
+    return {
+        todos: todos(state.todos, action),
+        visibilityFilter: visibilityFilter(state.visibilityFilter, action)
+    }
+};
+
 const testAddTodo = () => {
     const stateBefore = [];
     const action = {
@@ -102,3 +120,6 @@ const testToggleTodo = () => {
 testAddTodo();
 testToggleTodo();
 console.log('All test passed!');
+
+
+export default todoApp;
