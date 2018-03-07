@@ -16,7 +16,7 @@ const removeCounter = (list, index) =>{
 const incrementCounter = (list, index) =>{
     return [
         ...list.slice(0, index),
-        ...list[index]++,
+        list[index]+1,
         ...list.slice(index + 1 )]
 };
 
@@ -52,5 +52,9 @@ const testIncrementCounter = () =>{
         incrementCounter(listBefore, 1)
     ).toEqual(listAfter);
 };
+
+testAddCounter();
+testRemoveCounter();
+testIncrementCounter();
 
 console.log('All test passed!');
