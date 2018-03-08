@@ -159,21 +159,8 @@ const TodoApp = () => (
         <Footer />
     </div>);
 
-class Provider extends Component{
-    getChildContext(){
-        return {
-            store: this.props.store
-        }
-    }
 
-    static childContextTypes = {
-        store: PropTypes.object
-    };
-    render(){
-        return this.props.children;
-    }
-}
-
+import {Provider} from 'react-redux';
 import store from './redux/configureStore';
 
 ReactDOM.render(<Provider store={store}><TodoApp /></Provider>,
