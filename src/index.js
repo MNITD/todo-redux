@@ -45,24 +45,46 @@ const TodoList = ({todos, onTodoClick}) => (
     </ul>
 );
 
-const Footer = ({visibilityFilter, onFilterCLick}) => (
+const Footer = () => (
     <p>Show:
         {' '}
-        <FilterLink filter="SHOW_ALL" currentVisible={visibilityFilter} onClick={onFilterCLick}>ALL</FilterLink>
+        <FilterLink filter="SHOW_ALL">ALL</FilterLink>
         {' '}
-        <FilterLink filter="SHOW_ACTIVE" currentVisible={visibilityFilter} onClick={onFilterCLick}>ACTIVE</FilterLink>
+        <FilterLink filter="SHOW_ACTIVE">ACTIVE</FilterLink>
         {' '}
-        <FilterLink filter="SHOW_COMPLETED" currentVisible={visibilityFilter}
-                    onClick={onFilterCLick}>COMPLETED</FilterLink>
+        <FilterLink filter="SHOW_COMPLETED">COMPLETED</FilterLink>
     </p>
 );
 
-const FilterLink = ({filter, currentFilter, onClick, children}) => {
-    if (filter === currentFilter)
+class FilterLink extends Component{
+    componentDidMount(){
+        this.unsubscribe = store.subscribe(()=>{
+            this.forceUpdate();
+        })
+    }
+
+    componentWillUnmount(){
+        this.unsubscribe();
+    }
+
+    render(){
+        const props  = this.props;
+        const state = store.getState();
+        const onClick = ()=>{
+            store.dispatch({
+                type: 'SET_VISIBILITY_FILTER',
+                filter: props.filter
+            })};
+        return <Link active={props.filter === state.visibilityFilter} onClick={onClick}>{props.children}</Link>;
+    }
+}
+
+const Link = ({active, onClick, children}) => {
+    if (active)
         return <span>{children}</span>;
     return (<a href="#" onClick={e => {
         e.preventDefault();
-        onClick(filter);
+        onClick();
     }}>{children}</a>)
 };
 
