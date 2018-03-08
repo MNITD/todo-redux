@@ -4,12 +4,10 @@
 
 let nextTodoId = 0;
 
-const addTodo = (text) =>{
-    return {
+const addTodo = (text) =>({
         type: 'ADD_TODO',
         text,
         id: nextTodoId++
-    }
-};
+});
 
 export default  addTodo;
