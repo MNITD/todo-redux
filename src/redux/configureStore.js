@@ -1,10 +1,6 @@
 /**
  * Created by bogdan on 07.03.18.
  */
-
-import ReactDOM from 'react-dom';
-import React from 'react';
-
 // const counter = (state = 0, action) => {
 //     switch (action.type) {
 //         case 'INCREMENT':
