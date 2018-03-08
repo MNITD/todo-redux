@@ -3,13 +3,13 @@
  */
 import ReactDOM from 'react-dom';
 import React from 'react';
-import store from './redux/configureStore';
+
 
 
 const {Component} = React;
 
 
-const AddTodo = () => {
+const AddTodo = ({store}) => {
     let input;
     return (<div>
         <input ref={node => {
@@ -52,17 +52,17 @@ const TodoList = ({todos, onTodoClick}) => (
 const Footer = () => (
     <p>Show:
         {' '}
-        <FilterLink filter="SHOW_ALL">ALL</FilterLink>
+        <FilterLink filter="SHOW_ALL" store={store}>ALL</FilterLink>
         {' '}
-        <FilterLink filter="SHOW_ACTIVE">ACTIVE</FilterLink>
+        <FilterLink filter="SHOW_ACTIVE" store={store}>ACTIVE</FilterLink>
         {' '}
-        <FilterLink filter="SHOW_COMPLETED">COMPLETED</FilterLink>
+        <FilterLink filter="SHOW_COMPLETED" store={store}>COMPLETED</FilterLink>
     </p>
 );
 
 class FilterLink extends Component {
     componentDidMount() {
-        this.unsubscribe = store.subscribe(() => {
+        this.unsubscribe = this.props.store.subscribe(() => {
             this.forceUpdate();
         })
     }
@@ -73,7 +73,7 @@ class FilterLink extends Component {
 
     render() {
         const props = this.props;
-        const state = store.getState();
+        const state = props.store.getState();
         const onClick = () => {
             store.dispatch({
                 type: 'SET_VISIBILITY_FILTER',
@@ -108,7 +108,7 @@ const getVisibleTodos = (todos,
 
 class VisibleTodoList extends Component {
     componentDidMount() {
-        this.unsubscribe = store.subscribe(() => {
+        this.unsubscribe = this.props.store.subscribe(() => {
             this.forceUpdate();
         })
     }
@@ -118,7 +118,8 @@ class VisibleTodoList extends Component {
     }
 
     render() {
-        const state = store.getState();
+        const {store} = this.props;
+        const state =  store.getState();
 
         const onClick = id => {
             store.dispatch({
@@ -136,13 +137,14 @@ class VisibleTodoList extends Component {
 
 let nextTodoId = 0;
 
-const TodoApp = () => (
+const TodoApp = ({store}) => (
     <div>
-        <AddTodo/>
-        <VisibleTodoList/>
-        <Footer/>
+        <AddTodo store={store}/>
+        <VisibleTodoList store={store}/>
+        <Footer store={store}/>
     </div>);
 
+import store from './redux/configureStore';
 
-ReactDOM.render(<TodoApp/>,
+ReactDOM.render(<TodoApp store={store.getState()}/>,
     document.getElementById('root'));
