@@ -8,10 +8,38 @@ import store from './redux/configureStore';
 
 const {Component} = React;
 
+const FilterLink = ({filter,currentFilter, children})=>{
+    if(filter === currentFilter)
+        return <span>{children}</span>;
+    return (<a href="#" onClick={e=>{
+        e.preventDefault();
+        store.dispatch({
+            type: 'SET_VISIBILITY_FILTER',
+           filter
+        });
+    }}>{children}</a>)
+};
+
+const getVisibleTodos = (
+    todos,
+    filter
+)=>{
+    switch(filter){
+        case 'SHOW_ALL':
+            return todos;
+        case 'SHOW_ACTIVE':
+            return todos.filter(item => !item.completed);
+        case 'SHOW_COMPLETED':
+            return todos.filter(item => item.completed);
+    }
+};
+
 let nextTodoId = 0;
 
 class TodoApp extends Component {
     render() {
+        const {todos, visibilityFilter} = this.props;
+       const visibleTodos = getVisibleTodos(todos, visibilityFilter);
         return (
             <div>
                 <input ref={node => {this.input = node;}}/>
@@ -25,7 +53,7 @@ class TodoApp extends Component {
                 }}>Add Todo
                 </button>
                 <ul>
-                    {this.props.todos.map(todo => <li key={todo.id} onClick={() => {
+                    {visibleTodos.map(todo => <li key={todo.id} onClick={() => {
                         store.dispatch({
                             type: 'TOGGLE_TODO',
                             id: todo.id
@@ -36,12 +64,20 @@ class TodoApp extends Component {
                         {todo.text}
                     </li>)}
                 </ul>
+                <p>Show:
+                    {' '}
+                    <FilterLink filter="SHOW_ALL" currentVisible={visibilityFilter}>ALL</FilterLink>
+                    {' '}
+                    <FilterLink filter="SHOW_ACTIVE" currentVisible={visibilityFilter}>ACTIVE</FilterLink>
+                    {' '}
+                    <FilterLink filter="SHOW_COMPLETED" currentVisible={visibilityFilter}>COMPLETED</FilterLink>
+                </p>
             </div>)
     }
 }
 
 const render = () => {
-    ReactDOM.render(<TodoApp todos={store.getState().todos}/>,
+    ReactDOM.render(<TodoApp {...store.getState()}/>,
         document.getElementById('root'));
 };
 
