@@ -3,7 +3,7 @@
  */
 import ReactDOM from 'react-dom';
 import React from 'react';
-
+import PropTypes from 'prop-types';
 
 
 const {Component} = React;
@@ -28,7 +28,7 @@ const AddTodo = (props, {store}) => {
     </div>);
 };
 AddTodo.contextTypes = {
-    store: React.PropTypes.object
+    store: PropTypes.object
 };
 
 
@@ -76,6 +76,10 @@ class FilterLink extends Component {
         this.unsubscribe();
     }
 
+    static contextTypes = {
+        store: PropTypes.object
+    };
+
     render() {
         const props = this.props;
         const {store} = this.context;
@@ -89,10 +93,6 @@ class FilterLink extends Component {
         return <Link active={props.filter === state.visibilityFilter} onClick={onClick}>{props.children}</Link>;
     }
 }
-
-FilterLink.contextTypes = {
-    store: React.PropTypes.object
-};
 
 const Link = ({active, onClick, children}) => {
     if (active)
@@ -128,6 +128,10 @@ class VisibleTodoList extends Component {
         this.unsubscribe();
     }
 
+    static contextTypes = {
+        store: PropTypes.object
+    };
+
     render() {
         const {store} = this.context;
         const state =  store.getState();
@@ -140,14 +144,11 @@ class VisibleTodoList extends Component {
         };
 
         return <TodoList
-            todos={getVisibleTodos(state.todo, state.visibilityFilter)}
+            todos={getVisibleTodos(state.todos, state.visibilityFilter)}
             onTodoClick={onClick}/>
     }
 }
 
-VisibleTodoList.contextTypes = {
-    store: React.PropTypes.object
-};
 
 let nextTodoId = 0;
 
@@ -159,21 +160,21 @@ const TodoApp = () => (
     </div>);
 
 class Provider extends Component{
-    getChildConntext(){
+    getChildContext(){
         return {
             store: this.props.store
         }
     }
+
+    static childContextTypes = {
+        store: PropTypes.object
+    };
     render(){
         return this.props.children;
     }
 }
 
-Provider.childContextType = {
-    store: React.PropTypes.object
-};
-
 import store from './redux/configureStore';
 
-ReactDOM.render(<Provider store={store.getState()}><TodoApp /></Provider>,
+ReactDOM.render(<Provider store={store}><TodoApp /></Provider>,
     document.getElementById('root'));
