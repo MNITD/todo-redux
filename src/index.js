@@ -32,7 +32,6 @@ AddTodo.contextTypes = {
 };
 
 
-
 const Todo = ({onClick, completed, text}) => (
     <li onClick={onClick}
         style={{
@@ -116,38 +115,31 @@ const getVisibleTodos = (todos,
     }
 };
 
-class VisibleTodoList extends Component {
-    componentDidMount() {
-        const {store} = this.context;
-        this.unsubscribe = store.subscribe(() => {
-            this.forceUpdate();
-        })
+const mapStateToProps = (state) => {
+    return {
+        todos: getVisibleTodos(
+            state.todos,
+            state.visibilityFilter
+        )
     }
+};
 
-    componentWillUnmount() {
-        this.unsubscribe();
-    }
-
-    static contextTypes = {
-        store: PropTypes.object
-    };
-
-    render() {
-        const {store} = this.context;
-        const state =  store.getState();
-
-        const onClick = id => {
-            store.dispatch({
+const mapDispatchToProps = (dispatch) => {
+    return {
+        onTodoClick: id => {
+            dispatch({
                 type: 'TOGGLE_TODO',
                 id: id
-            })
-        };
+            });
+        }
+    };
+};
 
-        return <TodoList
-            todos={getVisibleTodos(state.todos, state.visibilityFilter)}
-            onTodoClick={onClick}/>
-    }
-}
+import {connect}  from 'react-redux';
+const VisibleTodoList = connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(TodoList);
 
 
 let nextTodoId = 0;
