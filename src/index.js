@@ -9,7 +9,7 @@ import React from 'react';
 const {Component} = React;
 
 
-const AddTodo = ({store}) => {
+const AddTodo = (props, {store}) => {
     let input;
     return (<div>
         <input ref={node => {
@@ -27,6 +27,10 @@ const AddTodo = ({store}) => {
         </button>
     </div>);
 };
+AddTodo.contextTypes = {
+    store: React.PropTypes.object
+};
+
 
 
 const Todo = ({onClick, completed, text}) => (
@@ -52,17 +56,18 @@ const TodoList = ({todos, onTodoClick}) => (
 const Footer = () => (
     <p>Show:
         {' '}
-        <FilterLink filter="SHOW_ALL" store={store}>ALL</FilterLink>
+        <FilterLink filter="SHOW_ALL">ALL</FilterLink>
         {' '}
-        <FilterLink filter="SHOW_ACTIVE" store={store}>ACTIVE</FilterLink>
+        <FilterLink filter="SHOW_ACTIVE">ACTIVE</FilterLink>
         {' '}
-        <FilterLink filter="SHOW_COMPLETED" store={store}>COMPLETED</FilterLink>
+        <FilterLink filter="SHOW_COMPLETED">COMPLETED</FilterLink>
     </p>
 );
 
 class FilterLink extends Component {
     componentDidMount() {
-        this.unsubscribe = this.props.store.subscribe(() => {
+        const {store} = this.context;
+        this.unsubscribe = store.subscribe(() => {
             this.forceUpdate();
         })
     }
@@ -73,7 +78,8 @@ class FilterLink extends Component {
 
     render() {
         const props = this.props;
-        const state = props.store.getState();
+        const {store} = this.context;
+        const state = store.getState();
         const onClick = () => {
             store.dispatch({
                 type: 'SET_VISIBILITY_FILTER',
@@ -83,6 +89,10 @@ class FilterLink extends Component {
         return <Link active={props.filter === state.visibilityFilter} onClick={onClick}>{props.children}</Link>;
     }
 }
+
+FilterLink.contextTypes = {
+    store: React.PropTypes.object
+};
 
 const Link = ({active, onClick, children}) => {
     if (active)
@@ -108,7 +118,8 @@ const getVisibleTodos = (todos,
 
 class VisibleTodoList extends Component {
     componentDidMount() {
-        this.unsubscribe = this.props.store.subscribe(() => {
+        const {store} = this.context;
+        this.unsubscribe = store.subscribe(() => {
             this.forceUpdate();
         })
     }
@@ -118,7 +129,7 @@ class VisibleTodoList extends Component {
     }
 
     render() {
-        const {store} = this.props;
+        const {store} = this.context;
         const state =  store.getState();
 
         const onClick = id => {
@@ -134,17 +145,35 @@ class VisibleTodoList extends Component {
     }
 }
 
+VisibleTodoList.contextTypes = {
+    store: React.PropTypes.object
+};
 
 let nextTodoId = 0;
 
-const TodoApp = ({store}) => (
+const TodoApp = () => (
     <div>
-        <AddTodo store={store}/>
-        <VisibleTodoList store={store}/>
-        <Footer store={store}/>
+        <AddTodo />
+        <VisibleTodoList />
+        <Footer />
     </div>);
+
+class Provider extends Component{
+    getChildConntext(){
+        return {
+            store: this.props.store
+        }
+    }
+    render(){
+        return this.props.children;
+    }
+}
+
+Provider.childContextType = {
+    store: React.PropTypes.object
+};
 
 import store from './redux/configureStore';
 
-ReactDOM.render(<TodoApp store={store.getState()}/>,
+ReactDOM.render(<Provider store={store.getState()}><TodoApp /></Provider>,
     document.getElementById('root'));
