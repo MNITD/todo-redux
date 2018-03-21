@@ -2,12 +2,12 @@
  * Created by bogdan on 08.03.18.
  */
 
-let nextTodoId = 0;
+import {v4} from 'node-uuid';
 
 const addTodo = (text) =>({
         type: 'ADD_TODO',
         text,
-        id: nextTodoId++
+        id: v4()
 });
 
 export default  addTodo;

@@ -1,64 +1,21 @@
 /**
  * Created by bogdan on 07.03.18.
  */
-// const counter = (state = 0, action) => {
-//     switch (action.type) {
-//         case 'INCREMENT':
-//             return state + 1;
-//         case 'DECREMENT':
-//             return state - 1;
-//         default:
-//             return state;
-//     }
-// };
-//
-// const createStore = (reducer) => {
-//     let state;
-//     let listeners = [];
-//
-//     const getState = () => state;
-//
-//     const dispatch = (action) => {
-//         state = reducer(state, action);
-//         listeners.forEach(listener => listener());
-//     };
-//
-//     const subscribe = (listener) => {
-//         listeners.push(listener);
-//         return () => {
-//             listeners = listeners.filter(l => l !== listener)
-//         }
-//     };
-//
-//     dispatch({});
-//
-//     return {getState, dispatch, subscribe};
-//
-// };
 
 import {createStore} from 'redux';
 import todoApp from './reducers/todo.reducer'
+import {loadState, saveState} from '../utils/localStorage';
+import throttle from 'lodash/throttle';
 
-const store = createStore(todoApp);
+const configureStore = () => {
+    const persistedState = loadState();
+    const store = createStore(todoApp, persistedState);
 
-// const Counter = ({value, onIncrement, onDecrement}) => (
-//     <div>
-//         <h1>{value}</h1>
-//         <button onClick={onIncrement}>+</button>
-//         <button onClick={onDecrement}>-</button>
-//     </div>);
+    store.subscribe(throttle(() => {
+        saveState({todos: store.getState().todos})
+    }, 1000));
 
-// const store = createStore(counter);
+    return store;
+};
 
-// const render = () => {
-//     ReactDOM.render(<Counter value={store.getState()}
-//                              onIncrement={()=>{store.dispatch({type:'INCREMENT'})}}
-//                              onDecrement={()=>{store.dispatch({type:'DECREMENT'})}}/>,
-//         document.getElementById('root'));
-// };
-
-// store.subscribe(render);
-// render();
-
-
-export default store;
+export default configureStore;
